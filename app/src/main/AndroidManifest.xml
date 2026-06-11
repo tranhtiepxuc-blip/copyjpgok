@@ -1,6 +1,8 @@
+
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Cấp quyền quản lý bộ nhớ để lưu ảnh giả lập -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29" />
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
@@ -10,7 +12,7 @@
         android:label="Chọn Ảnh FMS"
         android:supportsRtl="true"
         android:icon="@android:drawable/ic_menu_camera"
-        android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        android:theme="@style/Theme.MaterialComponents.Light.NoActionBar">
 
         <activity
             android:name="com.fms.selector.MainActivity"
@@ -23,3 +25,5 @@
 
     </application>
 </manifest>
+
+
