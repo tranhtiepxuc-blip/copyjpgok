@@ -1,100 +1,171 @@
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp"
-    android:background="#F8FAFC"
-    android:gravity="center_horizontal">
+```java
+package com.fms.selector;
 
-    <!-- Header của ứng dụng -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp"
-        android:background="#1E293B"
-        android:layout_marginBottom="16dp">
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Environment;
+import android.provider.Settings;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.Toast;
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="BỘ CHỌN ẢNH FMS BÌNH THUẬN"
-            android:textColor="#FFFFFF"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Chọn ảnh từ Thư viện để làm ảnh giả lập thực địa"
-            android:textColor="#94A3B8"
-            android:textSize="12sp" />
-    </LinearLayout>
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 
-    <!-- Khu vực hiển thị ảnh hiện tại -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:background="#FFFFFF"
-        android:padding="16dp"
-        android:layout_marginBottom="16dp">
+public class MainActivity extends AppCompatActivity {
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="ẢNH FAKE ĐANG ÁP DỤNG"
-            android:textColor="#475569"
-            android:textSize="12sp"
-            android:textStyle="bold"
-            android:layout_bottom="8dp"
-            android:layout_marginBottom="8dp" />
+    private static final int PICK_IMAGE_REQUEST = 2001;
+    private static final int STORAGE_PERMISSION_REQUEST = 2002;
+    private static final String FAKE_FOLDER_PATH = "/sdcard/FMS_Fake";
+    private static final String FAKE_IMAGE_PATH = "/sdcard/FMS_Fake/fake.jpg";
 
-        <ImageView
-            android:id="@+id/imgPreview"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerInside"
-            android:src="@android:drawable/ic_menu_gallery" />
-    </LinearLayout>
+    private ImageView imgPreview;
+    private Button btnPickImage;
+    private Button btnRequestPermission;
 
-    <!-- Nút Chọn Ảnh -->
-    <Button
-        android:id="@+id/btnPickImage"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:backgroundTint="#2563EB"
-        android:text="CHỌN ẢNH TỪ THƯ VIỆN"
-        android:textColor="#FFFFFF"
-        android:textSize="15sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="12dp" />
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
-    <!-- Nút Cấp Quyền Truy Cập Bộ Nhớ -->
-    <Button
-        android:id="@+id/btnRequestPermission"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:backgroundTint="#EF4444"
-        android:text="CẤP QUYỀN TRUY CẬP BỘ NHỚ"
-        android:textColor="#FFFFFF"
-        android:textSize="15sp"
-        android:textStyle="bold"
-        android:visibility="gone"
-        android:layout_marginBottom="12dp" />
+        imgPreview = findViewById(R.id.imgPreview);
+        btnPickImage = findViewById(R.id.btnPickImage);
+        btnRequestPermission = findViewById(R.id.btnRequestPermission);
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Ảnh tự động lưu tại: /sdcard/FMS_Fake/fake.jpg"
-        android:textColor="#64748B"
-        android:textSize="11sp" />
+        btnPickImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (checkStoragePermission()) {
+                    openGallery();
+                } else {
+                    requestStoragePermission();
+                }
+            }
+        });
 
-</LinearLayout>
+        btnRequestPermission.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                requestStoragePermission();
+            }
+        });
+
+        checkPermissionAndShowButtons();
+        loadCurrentImage();
+    }
+
+    private void checkPermissionAndShowButtons() {
+        if (checkStoragePermission()) {
+            btnRequestPermission.setVisibility(View.GONE);
+            btnPickImage.setEnabled(true);
+        } else {
+            btnRequestPermission.setVisibility(View.VISIBLE);
+            btnPickImage.setEnabled(false);
+        }
+    }
+
+    private boolean checkStoragePermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            return Environment.isExternalStorageManager();
+        }
+        return true; 
+    }
+
+    private void requestStoragePermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            try {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                intent.addCategory("android.intent.category.DEFAULT");
+                intent.setData(Uri.parse(String.format("package:%s", getApplicationContext().getPackageName())));
+                startActivityForResult(intent, STORAGE_PERMISSION_REQUEST);
+            } catch (Exception e) {
+                Intent intent = new Intent();
+                intent.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                startActivityForResult(intent, STORAGE_PERMISSION_REQUEST);
+            }
+        } else {
+            checkPermissionAndShowButtons();
+        }
+    }
+
+    private void openGallery() {
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        startActivityForResult(intent, PICK_IMAGE_REQUEST);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == STORAGE_PERMISSION_REQUEST) {
+            checkPermissionAndShowButtons();
+        } else if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            Uri selectedImageUri = data.getData();
+            copyImageToFakeFolder(selectedImageUri);
+        }
+    }
+
+    private void copyImageToFakeFolder(Uri selectedImageUri) {
+        try {
+            File folder = new File(FAKE_FOLDER_PATH);
+            if (!folder.exists()) {
+                folder.mkdirs();
+            }
+
+            File destFile = new File(FAKE_IMAGE_PATH);
+
+            InputStream inputStream = getContentResolver().openInputStream(selectedImageUri);
+            FileOutputStream outputStream = new FileOutputStream(destFile);
+
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+
+            inputStream.close();
+            outputStream.close();
+
+            Toast.makeText(this, "Đã lưu ảnh giả lập mới thành công!", Toast.LENGTH_SHORT).show();
+            loadCurrentImage(); 
+
+        } catch (Exception e) {
+            Toast.makeText(this, "Lỗi khi sao chép ảnh: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void loadCurrentImage() {
+        try {
+            File file = new File(FAKE_IMAGE_PATH);
+            if (file.exists()) {
+                Bitmap bitmap = BitmapFactory.decodeFile(FAKE_IMAGE_PATH);
+                if (bitmap != null) {
+                    imgPreview.setImageBitmap(bitmap);
+                }
+            } else {
+                imgPreview.setImageResource(android.R.drawable.ic_menu_gallery);
+            }
+        } catch (Exception e) {
+            imgPreview.setImageResource(android.R.drawable.ic_menu_gallery);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        checkPermissionAndShowButtons();
+        loadCurrentImage();
+    }
+}
 
 ```
