@@ -1,4 +1,3 @@
-```java
 package com.fms.selector;
 
 import android.content.Intent;
@@ -167,5 +166,3 @@ public class MainActivity extends AppCompatActivity {
         loadCurrentImage();
     }
 }
-
-```
