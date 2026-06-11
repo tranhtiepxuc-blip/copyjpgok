@@ -1,3 +1,4 @@
+```xml
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
@@ -7,13 +8,13 @@
 
     <application
         android:allowBackup="true"
-        android:label="Chon Anh FMS"
+        android:label="Chọn Ảnh FMS"
         android:supportsRtl="true"
         android:icon="@android:drawable/ic_menu_camera"
-        android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar">
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar">
 
         <activity
-            android:name=".MainActivity"
+            android:name="com.fms.selector.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -23,3 +24,5 @@
 
     </application>
 </manifest>
+
+```
