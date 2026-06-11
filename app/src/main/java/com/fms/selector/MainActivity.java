@@ -1,3 +1,4 @@
+
 package com.fms.selector;
 
 import android.content.Intent;
@@ -27,8 +28,6 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int PICK_IMAGE_REQUEST = 2001;
     private static final int STORAGE_PERMISSION_REQUEST = 2002;
-    private static final String FAKE_FOLDER_PATH = "/sdcard/FMS_Fake";
-    private static final String FAKE_IMAGE_PATH = "/sdcard/FMS_Fake/fake.jpg";
 
     private ImageView imgPreview;
     private Button btnPickImage;
@@ -36,7 +35,15 @@ public class MainActivity extends AppCompatActivity {
     private Spinner spinnerResolution;
     private TextView txtStatus;
 
-    // Các tùy chọn độ phân giải
+    // Tự động phân giải thư mục bộ nhớ động thay vì gán cứng /sdcard/
+    private String getFakeFolderPath() {
+        return Environment.getExternalStorageDirectory().getAbsolutePath() + "/FMS_Fake";
+    }
+
+    private String getFakeImagePath() {
+        return getFakeFolderPath() + "/fake.jpg";
+    }
+
     private final String[] resolutions = {
         "Chuẩn 4:3 (1280 x 960) - Khuyên dùng",
         "Chuẩn 16:9 (1920 x 1080)",
@@ -47,39 +54,42 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        try {
+            setContentView(R.layout.activity_main);
 
-        imgPreview = findViewById(R.id.imgPreview);
-        btnPickImage = findViewById(R.id.btnPickImage);
-        btnRequestPermission = findViewById(R.id.btnRequestPermission);
-        spinnerResolution = findViewById(R.id.spinnerResolution);
-        txtStatus = findViewById(R.id.txtStatus);
+            imgPreview = findViewById(R.id.imgPreview);
+            btnPickImage = findViewById(R.id.btnPickImage);
+            btnRequestPermission = findViewById(R.id.btnRequestPermission);
+            spinnerResolution = findViewById(R.id.spinnerResolution);
+            txtStatus = findViewById(R.id.txtStatus);
 
-        // Thiết lập dữ liệu cho Spinner chọn kích thước
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, resolutions);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerResolution.setAdapter(adapter);
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, resolutions);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinnerResolution.setAdapter(adapter);
 
-        btnPickImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (checkStoragePermission()) {
-                    openGallery();
-                } else {
+            btnPickImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (checkStoragePermission()) {
+                        openGallery();
+                    } else {
+                        requestStoragePermission();
+                    }
+                }
+            });
+
+            btnRequestPermission.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
                     requestStoragePermission();
                 }
-            }
-        });
+            });
 
-        btnRequestPermission.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                requestStoragePermission();
-            }
-        });
-
-        checkPermissionAndShowButtons();
-        loadCurrentImage();
+            checkPermissionAndShowButtons();
+            loadCurrentImage();
+        } catch (Exception e) {
+            Toast.makeText(this, "Lỗi khởi tạo giao diện: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 
     private void checkPermissionAndShowButtons() {
@@ -117,9 +127,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void openGallery() {
-        Intent intent = new Intent(Intent.ACTION_PICK);
-        intent.setType("image/*");
-        startActivityForResult(intent, PICK_IMAGE_REQUEST);
+        try {
+            Intent intent = new Intent(Intent.ACTION_PICK);
+            intent.setType("image/*");
+            startActivityForResult(intent, PICK_IMAGE_REQUEST);
+        } catch (Exception e) {
+            Toast.makeText(this, "Không thể mở thư viện: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -136,15 +150,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void processAndSaveImage(Uri selectedImageUri) {
         try {
-            // Đảm bảo thư mục đích tồn tại
-            File folder = new File(FAKE_FOLDER_PATH);
+            File folder = new File(getFakeFolderPath());
             if (!folder.exists()) {
                 folder.mkdirs();
             }
 
-            File destFile = new File(FAKE_IMAGE_PATH);
+            File destFile = new File(getFakeImagePath());
 
-            // 1. Giải mã hình ảnh đã chọn từ Uri
             InputStream inputStream = getContentResolver().openInputStream(selectedImageUri);
             Bitmap originalBitmap = BitmapFactory.decodeStream(inputStream);
             if (inputStream != null) {
@@ -152,76 +164,66 @@ public class MainActivity extends AppCompatActivity {
             }
 
             if (originalBitmap == null) {
-                Toast.makeText(this, "Không thể đọc dữ liệu ảnh!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Không đọc được tệp hình ảnh!", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // 2. Xác định kích thước mục tiêu dựa trên lựa chọn của người dùng
             int selectedPosition = spinnerResolution.getSelectedItemPosition();
             int targetWidth = originalBitmap.getWidth();
             int targetHeight = originalBitmap.getHeight();
 
-            if (selectedPosition == 0) { // 1280 x 960 (4:3)
+            if (selectedPosition == 0) { 
                 targetWidth = 1280;
                 targetHeight = 960;
-            } else if (selectedPosition == 1) { // 1920 x 1080 (16:9)
+            } else if (selectedPosition == 1) { 
                 targetWidth = 1920;
                 targetHeight = 1080;
-            } else if (selectedPosition == 2) { // 1280 x 720 (16:9)
+            } else if (selectedPosition == 2) { 
                 targetWidth = 1280;
                 targetHeight = 720;
             }
 
-            // 3. Thực hiện co giãn (Resize) ảnh chất lượng cao
             Bitmap finalBitmap;
-            if (selectedPosition != 3) { // Nếu không chọn giữ nguyên gốc
+            if (selectedPosition != 3) { 
                 finalBitmap = Bitmap.createScaledBitmap(originalBitmap, targetWidth, targetHeight, true);
-                XposedBridgeLog("Đã resize ảnh từ " + originalBitmap.getWidth() + "x" + originalBitmap.getHeight() + " thành " + targetWidth + "x" + targetHeight);
             } else {
                 finalBitmap = originalBitmap;
             }
 
-            // 4. Lưu trực tiếp xuống bộ nhớ máy với định dạng JPEG chất lượng cao (95%)
             FileOutputStream outputStream = new FileOutputStream(destFile);
             finalBitmap.compress(Bitmap.CompressFormat.JPEG, 95, outputStream);
             outputStream.flush();
             outputStream.close();
 
-            // Thu hồi tài nguyên RAM
             if (finalBitmap != originalBitmap) {
                 finalBitmap.recycle();
             }
             originalBitmap.recycle();
 
-            Toast.makeText(this, "Đã tối ưu hóa kích thước và lưu ảnh thành công!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Đã tối ưu hóa tỉ lệ và nạp ảnh thành công!", Toast.LENGTH_SHORT).show();
             loadCurrentImage(); 
 
         } catch (Exception e) {
-            Toast.makeText(this, "Lỗi xử lý hình ảnh: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Lỗi xử lý sao chép ảnh: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 
     private void loadCurrentImage() {
         try {
-            File file = new File(FAKE_IMAGE_PATH);
+            File file = new File(getFakeImagePath());
             if (file.exists()) {
-                Bitmap bitmap = BitmapFactory.decodeFile(FAKE_IMAGE_PATH);
+                Bitmap bitmap = BitmapFactory.decodeFile(getFakeImagePath());
                 if (bitmap != null) {
                     imgPreview.setImageBitmap(bitmap);
-                    txtStatus.setText("Độ phân giải: " + bitmap.getWidth() + " x " + bitmap.getHeight() + " pixels");
+                    txtStatus.setText("Độ phân giải hiện tại: " + bitmap.getWidth() + " x " + bitmap.getHeight() + " pixels");
                 }
             } else {
                 imgPreview.setImageResource(android.R.drawable.ic_menu_gallery);
-                txtStatus.setText("Đường dẫn: " + FAKE_IMAGE_PATH);
+                txtStatus.setText("Lưu tại: " + getFakeImagePath());
             }
         } catch (Exception e) {
             imgPreview.setImageResource(android.R.drawable.ic_menu_gallery);
         }
-    }
-
-    private void XposedBridgeLog(String message) {
-        // Hàm phụ trợ ghi log hệ thống
-        android.util.Log.d("FMS_SELECTOR", message);
     }
 
     @Override
