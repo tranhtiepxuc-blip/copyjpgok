@@ -13,13 +13,13 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="16dp"
-        android:background="#1E293B"
+        android:background="#0F172A"
         android:layout_marginBottom="16dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="BỘ CHỌN ẢNH FMS BÌNH THUẬN"
+            android:text="BỘ CHỌN &amp; TỰ ĐỘNG RESIZE FMS"
             android:textColor="#FFFFFF"
             android:textSize="18sp"
             android:textStyle="bold" />
@@ -28,9 +28,34 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Chọn ảnh từ Thư viện để làm ảnh giả lập thực địa"
+            android:text="App tự động co giãn kích thước để chữ tọa độ FMS chuẩn nhất"
             android:textColor="#94A3B8"
             android:textSize="12sp" />
+    </LinearLayout>
+
+    <!-- Khu vực cấu hình kích thước xuất ra -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#FFFFFF"
+        android:padding="12dp"
+        android:layout_marginBottom="12dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="CHỌN ĐỘ PHÂN GIẢI MUỐN XUẤT RA:"
+            android:textColor="#475569"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <Spinner
+            android:id="@+id/spinnerResolution"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="?android:attr/spinnerStyle" />
     </LinearLayout>
 
     <!-- Khu vực hiển thị ảnh hiện tại -->
@@ -41,7 +66,7 @@
         android:orientation="vertical"
         android:gravity="center"
         android:background="#FFFFFF"
-        android:padding="16dp"
+        android:padding="12dp"
         android:layout_marginBottom="16dp">
 
         <TextView
@@ -87,9 +112,10 @@
         android:layout_marginBottom="12dp" />
 
     <TextView
+        android:id="@+id/txtStatus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Ảnh tự động lưu tại: /sdcard/FMS_Fake/fake.jpg"
+        android:text="Đường dẫn: /sdcard/FMS_Fake/fake.jpg"
         android:textColor="#64748B"
         android:textSize="11sp" />
 
