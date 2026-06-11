@@ -1,128 +1,100 @@
+```xml
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="[http://schemas.android.com/apk/res/android](http://schemas.android.com/apk/res/android)"
-    xmlns:app="[http://schemas.android.com/apk/res-auto](http://schemas.android.com/apk/res-auto)"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F1F5F9"
-    android:padding="16dp">
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#F8FAFC"
+    android:gravity="center_horizontal">
 
-    <!-- Card Tiêu đề -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cardHeader"
-        android:layout_width="0dp"
+    <!-- Header của ứng dụng -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="4dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="#1E293B"
+        android:layout_marginBottom="16dp">
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="#0F172A"
-            android:orientation="vertical"
-            android:padding="20dp">
+            android:text="BỘ CHỌN ẢNH FMS BÌNH THUẬN"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="BỘ CHỌN ẢNH FMS BÌNH THUẬN"
-                android:textColor="#FFFFFF"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Chọn ảnh từ Thư viện để làm ảnh giả lập thực địa"
+            android:textColor="#94A3B8"
+            android:textSize="12sp" />
+    </LinearLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Chỉ cần chọn ảnh từ thư viện, app tự động đổi tên thành fake.jpg"
-                android:textColor="#94A3B8"
-                android:textSize="12sp" />
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
-
-    <!-- Khu vực xem ảnh xem trước (Preview) -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cardPreview"
-        android:layout_width="0dp"
+    <!-- Khu vực hiển thị ảnh hiện tại -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="2dp"
-        app:layout_constraintBottom_toTopOf="@+id/btnPickImage"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cardHeader">
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:background="#FFFFFF"
+        android:padding="16dp"
+        android:layout_marginBottom="16dp">
 
-        <LinearLayout
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ẢNH FAKE ĐANG ÁP DỤNG"
+            android:textColor="#475569"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:layout_bottom="8dp"
+            android:layout_marginBottom="8dp" />
+
+        <ImageView
+            android:id="@+id/imgPreview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:scaleType="centerInside"
+            android:src="@android:drawable/ic_menu_gallery" />
+    </LinearLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:text="ẢNH FAKE ĐANG ĐƯỢC ÁP DỤNG"
-                android:textColor="#475569"
-                android:textSize="12sp"
-                android:textStyle="bold" />
-
-            <ImageView
-                android:id="@+id/imgPreview"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerInside"
-                android:src="@android:drawable/ic_menu_gallery" />
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
-
-    <!-- Nút chọn ảnh mới -->
+    <!-- Nút Chọn Ảnh -->
     <Button
         android:id="@+id/btnPickImage"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:layout_marginBottom="12dp"
         android:backgroundTint="#2563EB"
         android:text="CHỌN ẢNH TỪ THƯ VIỆN"
         android:textColor="#FFFFFF"
         android:textSize="15sp"
         android:textStyle="bold"
-        app:cornerRadius="12dp"
-        app:layout_constraintBottom_toTopOf="@+id/btnRequestPermission"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:layout_marginBottom="12dp" />
 
-    <!-- Nút cấp quyền quản lý bộ nhớ -->
+    <!-- Nút Cấp Quyền Truy Cập Bộ Nhớ -->
     <Button
         android:id="@+id/btnRequestPermission"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:layout_marginBottom="8dp"
         android:backgroundTint="#EF4444"
         android:text="CẤP QUYỀN TRUY CẬP BỘ NHỚ"
         android:textColor="#FFFFFF"
         android:textSize="15sp"
         android:textStyle="bold"
         android:visibility="gone"
-        app:cornerRadius="12dp"
-        app:layout_constraintBottom_toTopOf="@+id/footerText"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:layout_marginBottom="12dp" />
 
     <TextView
-        android:id="@+id/footerText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Ảnh được lưu tại: /sdcard/FMS_Fake/fake.jpg"
+        android:text="Ảnh tự động lưu tại: /sdcard/FMS_Fake/fake.jpg"
         android:textColor="#64748B"
-        android:textSize="11sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:textSize="11sp" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>
+
+```
